@@ -7,6 +7,7 @@ task anacoreUtilsMergeVCFCallers {
 	File MergeVCFMobiDL
 	Array[File] Vcfs
   Array[String] Callers
+	String PythonExe = "/mnt/Bioinfo/Softs/src/conda/Anaconda2-2019.07/envs/mobiDL/bin/python3"
 	# runtime attributes
 	Int Cpu
 	Int Memory
@@ -14,7 +15,7 @@ task anacoreUtilsMergeVCFCallers {
 		# anacoreUtilsMergeVCFCallersMobiDL.py must be in PATH
 		# and anacore-utils installed
 		# https://github.com/bialimed/AnaCore-utils
-		${MergeVCFMobiDL} \
+		${PythonExe} ${MergeVCFMobiDL} \
     -c ${sep=' ' Callers} \
 		-i ${sep=' ' Vcfs} \
 		-o "${OutDir}${SampleID}/${WorkflowType}/${SampleID}.merged.vcf"
