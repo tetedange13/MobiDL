@@ -135,12 +135,9 @@ workflow panelCapture {
 	String crumbleExe
 	String ldLibraryPath
 	## DeepVariant
-	String referenceFasta
 	String modelType
-	String bedFile
 	String data
 	String refData
-	String dvOut
 	String outputMnt
 	String dvExe
 	String singularityExe
@@ -570,12 +567,11 @@ workflow panelCapture {
 		WorkflowType = workflowType,
 		BamFile = samtoolsSort.sortedBam,
 		BamIndex = finalIndexing.bamIndex,
-		ReferenceFasta = referenceFasta,
-		BedFile = bedFile,
+		ReferenceFasta = refFasta,
+		BedFile = intervalBedFile,
 		ModelType = modelType,
 		Data = data,
 		RefData = refData,
-		DvOut = dvOut,
 		Output = outputMnt,
 		VcSuffix = dvSuffix,
 		DvExe = dvExe,

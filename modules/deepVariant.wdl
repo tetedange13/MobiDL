@@ -11,7 +11,6 @@ task deepVariant {
 	String ModelType
 	String Data
 	String RefData
-	String DvOut
 	String Output
 	String VcSuffix
 	String DvExe
@@ -28,10 +27,10 @@ task deepVariant {
 		${DvSimg}	${DvExe} \
 		--model_type=${ModelType} \
 		--ref=${ReferenceFasta} \
-		--reads="${DvOut}/${SampleID}/${WorkflowType}/${SampleID}.bam" \
+		--reads="${OutDir}/${SampleID}/${WorkflowType}/${SampleID}.bam" \
 		--regions=${BedFile} \
 		--num_shards=${Cpu} \
-		--output_vcf="${DvOut}/${SampleID}/${WorkflowType}/${SampleID}.unsorted.vcf"
+		--output_vcf="${OutDir}/${SampleID}/${WorkflowType}/${SampleID}.unsorted.vcf"
 		${GatkExe} SortVcf \
 		-I "${OutDir}${SampleID}/${WorkflowType}/${SampleID}.unsorted.vcf" \
 		-O "${OutDir}${SampleID}/${WorkflowType}/${SampleID}.dv.vcf"
@@ -44,5 +43,6 @@ task deepVariant {
 	runtime {
 		cpu: "${Cpu}"
 		requested_memory_mb_per_core: "${Memory}"
+		queue: "avx"
 	}
 }
