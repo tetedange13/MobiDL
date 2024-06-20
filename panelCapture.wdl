@@ -1000,18 +1000,19 @@ workflow panelCapture {
 		}
 		# QUICKFIX: Sample-level multiQC is run only if 'doCrumble=True'
 		#           (but allow pipeline to complete as 'Succeeded')
-		if (doCrumble) {
-			call runMultiqc.multiqc {
-				input:
-				Cpu = cpuLow,
-				Memory = memoryHigh,
-				SampleID = sampleID,
-				OutDir = outDir,
-				WorkflowType = workflowType,
-				MultiqcExe = multiqcExe,
-				Vcf = cleanUpPanelCaptureTmpDirsDoCrumble.finalFile1
-			}
-		}
+		# QUICKFIX2: Drop it for now (run-level multiQC is far more informative than sample-level one)
+		# if (doCrumble) {
+		# 	call runMultiqc.multiqc {
+		# 		input:
+		# 		Cpu = cpuLow,
+		# 		Memory = memoryHigh,
+		# 		SampleID = sampleID,
+		# 		OutDir = outDir,
+		# 		WorkflowType = workflowType,
+		# 		MultiqcExe = multiqcExe,
+		# 		Vcf = cleanUpPanelCaptureTmpDirsDoCrumble.finalFile1
+		# 	}
+		# }
 	}
 	# File finalWorkFlowVcf
 	# if (debug) {
