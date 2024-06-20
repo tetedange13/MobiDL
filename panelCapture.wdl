@@ -998,15 +998,19 @@ workflow panelCapture {
 				VcfArray = ["${dataPath}" + basename(refCallFiltration.noRefCalledVcf),"${dataPath}" + basename(gatkSortVcfDv.sortedVcf),"${dataPath}" + basename(gatkSortVcfDv.sortedVcfIndex),"${dataPath}" + basename(jvarkitVcfPolyxDv.polyxedVcf),"${dataPath}" + basename(jvarkitVcfPolyxDv.polyxedVcfIndex),"${dataPath}" + basename(gatkHardFiltering.HardFilteredVcf),"${dataPath}" + basename(gatkHardFiltering.HardFilteredVcfIndex), "${dataPath}" + basename(gatkGatherVcfs.gatheredHcVcf), "${dataPath}" + basename(gatkGatherVcfs.gatheredHcVcfIndex), "${dataPath}" + basename(jvarkitVcfPolyxHc.polyxedVcf), "${dataPath}" + basename(jvarkitVcfPolyxHc.polyxedVcfIndex), "${dataPath}" + basename(gatkSplitVcfs.snpVcf), "${dataPath}" + basename(gatkSplitVcfs.snpVcfIndex), "${dataPath}" + basename(gatkSplitVcfs.indelVcf), "${dataPath}" + basename(gatkSplitVcfs.indelVcfIndex), "${dataPath}" + basename(gatkVariantFiltrationSnp.filteredSnpVcf), "${dataPath}" + basename(gatkVariantFiltrationSnp.filteredSnpVcfIndex), "${dataPath}" + basename(gatkVariantFiltrationIndel.filteredIndelVcf), "${dataPath}" + basename(gatkVariantFiltrationIndel.filteredIndelVcfIndex), "${dataPath}" + basename(gatkMergeVcfs.mergedVcf), "${dataPath}" + basename(gatkMergeVcfs.mergedVcfIndex), "${dataPath}" + basename(gatkSortVcfHc.sortedVcf), "${dataPath}" + basename(gatkSortVcfHc.sortedVcfIndex), "${dataPath}" + basename(compressIndexVcfHc.bgZippedVcf), "${dataPath}" + basename(compressIndexVcfHc.bgZippedVcfIndex), "${dataPath}" + basename(compressIndexVcfDv.bgZippedVcf), "${dataPath}" + basename(compressIndexVcfDv.bgZippedVcfIndex), "${dataPath}" + basename(anacoreUtilsMergeVCFCallers.mergedVcf)]
 			}
 		}
-		call runMultiqc.multiqc {
-			input:
-			Cpu = cpuLow,
-			Memory = memoryHigh,
-			SampleID = sampleID,
-			OutDir = outDir,
-			WorkflowType = workflowType,
-			MultiqcExe = multiqcExe,
-			Vcf = cleanUpPanelCaptureTmpDirs.finalFile1
+		# QUICKFIX: Sample-level multiQC is run only if 'doCrumble=True'
+		#           (but allow pipeline to complete as 'Succeeded')
+		if (doCrumble) {
+			call runMultiqc.multiqc {
+				input:
+				Cpu = cpuLow,
+				Memory = memoryHigh,
+				SampleID = sampleID,
+				OutDir = outDir,
+				WorkflowType = workflowType,
+				MultiqcExe = multiqcExe,
+				Vcf = cleanUpPanelCaptureTmpDirsDoCrumble.finalFile1
+			}
 		}
 	}
 	# File finalWorkFlowVcf
