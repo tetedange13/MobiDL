@@ -1,0 +1,32 @@
+name: MobiDL_prod
+
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+  - compbiocore  # For Perl packages needed by Achab
+
+dependencies:
+  - cromwell=58
+  - bwa=0.7.15
+  - fastp=0.20.0
+  - gatk4=4.2.0.0
+  - multiqc=1.14
+  - qualimap
+  - sambamba=0.6.6
+  - samtools=1.9
+  - bcftools=1.9
+  - bedtools=2.26.0
+  - crumble=0.8.2
+  - vcftools=0.1.16
+# Achab:
+  - mobidic-mpa=1.2.6
+  - perl=5.26.2
+  - perl-bioperl=1.7.2
+  - perl-excel-writer-xlsx=1.00
+  - perl-switch=2.17
+# Really need to pin them ?
+#  - python=3.7.12 # (automatically got v3.7.8)
+#  - r-base=3.5.1 # (automatically got v3.6.2)
+
+#prefix: /mnt/Bioinfo/Softs/src/conda/envs/MobiDL_prod
