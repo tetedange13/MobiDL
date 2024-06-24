@@ -14,6 +14,9 @@ dependencies:
   - qualimap
   - sambamba=0.6.6
   - samtools=1.9
+# WARN: 'prod' env actually use v1.4(.0) of bcftools
+#       -> But through conda, I get a 'libcrypto' error with this version
+#       -> Instead use same version as samtools
   - bcftools=1.9
   - bedtools=2.26.0
   - crumble=0.8.2
