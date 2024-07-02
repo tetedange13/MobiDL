@@ -1,0 +1,29 @@
+## WARNING: md5 of EMPTY file = d41d8cd98f00b204e9800998ecf8427e
+
+- name: PanelCapture HG002 trio son on cluster scratch
+  # Overall runtime : ~ 1.5h
+  tags:
+    - wf_level
+    - full
+    - corriel
+    - HG002_trio
+    - son
+  command: nohup bash -c "source tests/func_special.sh && run_wdl_MobiDL panelCapture.wdl tests/panelCapture/HG002_inputs.json tests/Cluster_noDB-test.conf"
+  stdout:
+    contains:
+      - "workflow finished with status 'Succeeded'"
+
+- name: Happy HG002 trio son on cluster scratch
+  tags:
+    - wf_level
+    - full
+    - corriel
+    - HG002_trio
+    - son
+    - special
+  command: nohup bash tests/panelCapture/run_happy_FULL.sh /scratch/PanelCapture_HG002_trio_son_on_cluster_scratch HG002
+  exit_code: 0
+  files:
+    - path: out-test/HG002.summary.csv
+      should_exist: true
+      md5sum: 41f01179794d55fb863b5eac9cbe79a5
