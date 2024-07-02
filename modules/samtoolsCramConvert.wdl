@@ -10,7 +10,7 @@ task samtoolsCramConvert {
 	File BamFile
 	File RefFastaGz
 	File RefFaiGz
-	File RefFaiGzi
+	File? RefFaiGzi
 	#runtime attributes
 	Int Cpu
 	Int Memory

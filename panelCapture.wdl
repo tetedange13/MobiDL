@@ -383,9 +383,8 @@ workflow panelCapture {
 		WorkflowType = workflowType,
 		SamtoolsExe = samtoolsExe,
 		BamFile = samtoolsSort.sortedBam,
-		RefFastaGz = refFastaGz,
-		RefFaiGz = refFaiGz,
-		RefFaiGzi = refFaiGzi
+		RefFastaGz = refFasta,
+		RefFaiGz = refFai
 	}
 	call runSamtoolsCramIndex.samtoolsCramIndex {
 		input:
