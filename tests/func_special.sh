@@ -69,10 +69,13 @@ happy_exomeTwist() {
 	source /etc/profile.d/conda.sh && conda activate /home/olivier/.conda/envs/hap.py
 
 	# Intersect targetExome.bed with noinconsistend_bench.bed:
-	# WARN: noinconsistent.bed have chr_name WITHOUT 'chr' prefix -> It is added on-the-fly
+	# WARN: noinconsistent.bed have chr_name WITHOUT 'chr' prefix -> 1st create intermediate BED with it
+	sed 's/^/chr/' "$prfx_truth"/"$SAMPLE"_GRCh37_1_22_v4.2.1_benchmark_noinconsistent.bed \
+		> "$out_happy"/"$SAMPLE"_GRCh37_1_22_v4.2.1_benchmark_noinconsistent.chr.bed
+
 	bedtools intersect \
 		-a "$tgt_BED" \
-		-b <(sed 's/^/chr/' "$prfx_truth"/"$SAMPLE"_GRCh37_1_22_v4.2.1_benchmark_noinconsistent.bed) \
+		-b "$out_happy"/"$SAMPLE"_GRCh37_1_22_v4.2.1_benchmark_noinconsistent.chr.bed \
 		> "$out_happy"/"$SAMPLE"_exomeTwist_vs_benchmark.bed
 
 	# Run hap.py:
