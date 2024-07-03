@@ -27,10 +27,12 @@ task deepVariant {
 		${DvSimg}	${DvExe} \
 		--model_type=${ModelType} \
 		--ref=${ReferenceFasta} \
-		--reads="${OutDir}/${SampleID}/${WorkflowType}/${SampleID}.bam" \
+		--reads=${BamFile} \
 		--regions=${BedFile} \
 		--num_shards=${Cpu} \
 		--output_vcf="${OutDir}/${SampleID}/${WorkflowType}/${SampleID}.unsorted.vcf"
+
+		# Then sort VCF produced by DeepVariant:
 		${GatkExe} SortVcf \
 		-I "${OutDir}${SampleID}/${WorkflowType}/${SampleID}.unsorted.vcf" \
 		-O "${OutDir}${SampleID}/${WorkflowType}/${SampleID}.dv.vcf"
