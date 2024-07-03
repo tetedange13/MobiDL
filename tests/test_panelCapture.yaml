@@ -27,3 +27,9 @@
     - path: out-test/HG002.summary.csv
       should_exist: true
       md5sum: 41f01179794d55fb863b5eac9cbe79a5
+    - path: out-test/HG002.dv.summary.csv
+      should_exist: true
+      md5sum: 41f01179794d55fb863b5eac9cbe79a5
+    - path: out-test/HG002.hc.summary.csv
+      should_exist: true
+      md5sum: 41f01179794d55fb863b5eac9cbe79a5

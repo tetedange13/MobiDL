@@ -81,5 +81,5 @@ happy_exomeTwist() {
 		"$to_tested_VCF" \
 		--target-regions "$out_happy"/"$SAMPLE"_exomeTwist_vs_benchmark.bed \
 		--reference "$ref_fa" \
-		--report-prefix "$out_happy"/"$SAMPLE"
+		--report-prefix "$out_happy"/"$(basename "$to_tested_VCF" .vcf)"
 }

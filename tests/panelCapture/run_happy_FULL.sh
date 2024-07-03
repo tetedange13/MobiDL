@@ -20,14 +20,27 @@ if [ -z $(find "$prfx_tested"/"$SAMPLE" -type f -name "${SAMPLE}.vcf") ] ; then
 	exit 1
 fi
 
-# Then run hap.py
-# WARN: Each family member must have been analyzed as a solo (even though this is a trio)
+# Then run hap.py on 'merged' VCF + 'subunit' VCFs (HC + DV)
 # Running hap.py takes ~ 15 min by sample
 
+# 'merged' VCF:
 happy_exomeTwist \
     "$SAMPLE" \
     $(find "$prfx_tested"/"$SAMPLE" -type f -name "${SAMPLE}.vcf") \
     /mnt/chu-ngs/refData/intervals/RefSeqHG19_CDSplus20.bed &
+
+# 'DeepVariant' VCF:
+happy_exomeTwist \
+    "$SAMPLE" \
+    $(find "$prfx_tested"/"$SAMPLE" -type f -name "${SAMPLE}.dv.vcf") \
+    /mnt/chu-ngs/refData/intervals/RefSeqHG19_CDSplus20.bed &
+
+# 'HaplotypeCaller' VCF:
+happy_exomeTwist \
+    "$SAMPLE" \
+    $(find "$prfx_tested"/"$SAMPLE" -type f -name "${SAMPLE}.hc.vcf") \
+    /mnt/chu-ngs/refData/intervals/RefSeqHG19_CDSplus20.bed &
+
 
 # Wait for 'srun' jobs ran in background to finish:
 # Inspired from: https://stackoverflow.com/questions/356100/how-to-wait-in-bash-for-several-subprocesses-to-finish-and-return-exit-code-0
