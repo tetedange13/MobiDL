@@ -73,16 +73,12 @@ happy_exomeTwist() {
 	sed 's/^/chr/' "$prfx_truth"/"$SAMPLE"_GRCh37_1_22_v4.2.1_benchmark_noinconsistent.bed \
 		> "$out_happy"/"$SAMPLE"_GRCh37_1_22_v4.2.1_benchmark_noinconsistent.chr.bed
 
-	bedtools intersect \
-		-a "$tgt_BED" \
-		-b "$out_happy"/"$SAMPLE"_GRCh37_1_22_v4.2.1_benchmark_noinconsistent.chr.bed \
-		> "$out_happy"/"$SAMPLE"_exomeTwist_vs_benchmark.bed
-
 	# Run hap.py:
 	srun --partition="test" hap.py \
 		"$prfx_truth"/"$SAMPLE"_GRCh37_1_22_v4.2.1_benchmark.chr.vcf.gz \
 		"$to_tested_VCF" \
-		--target-regions "$out_happy"/"$SAMPLE"_exomeTwist_vs_benchmark.bed \
+		--false-positives "$out_happy"/"$SAMPLE"_GRCh37_1_22_v4.2.1_benchmark_noinconsistent.chr.bed \
+		--target-regions "$tgt_BED" \
 		--reference "$ref_fa" \
 		--report-prefix "$out_happy"/"$(basename "$to_tested_VCF" .vcf)"
 }
