@@ -3,7 +3,6 @@
 ### Requirements
 
 - [Pytest-workflow](https://github.com/LUMC/pytest-workflow)
-- Cromwell (to run workflows)
 
 <br>
 
