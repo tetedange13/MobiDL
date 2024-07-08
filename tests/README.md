@@ -22,7 +22,7 @@ Overall running both tests in serial takes 2h-2h30<br>
 To run both 'solo' and 'mini' tests in parallel, use their tag:
 ```bash
 # FULL (not down-sampled) 'corriel' test for 'son' from 'HG002_trio' (takes ~ 3.5h):
-2pytest \
+pytest \
         --tag HG002_trio --tag son \
         --keep-workflow-wd \
         --verbose \
