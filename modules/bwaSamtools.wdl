@@ -31,9 +31,12 @@ task bwaSamtools {
 		${FastqR2} \
 		| ${SamtoolsExe} sort -@ ${Cpu} -l 1 \
 		-o "${OutDir}${OutputDirSampleID}/${WorkflowType}/${SampleID}.bam"
+
+		${SamtoolsExe} index "${OutDir}${OutputDirSampleID}/${WorkflowType}/${SampleID}.bam"
 	}
 	output {
 		File sortedBam = "${OutDir}${OutputDirSampleID}/${WorkflowType}/${SampleID}.bam"
+		File sortedBamIndex = "${OutDir}${OutputDirSampleID}/${WorkflowType}/${SampleID}.bam.bai"
 	}
 	runtime {
 		cpu: "${Cpu}"
