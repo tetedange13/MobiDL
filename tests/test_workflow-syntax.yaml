@@ -1,0 +1,9 @@
+- name: Cromwell syntax of panelCapture
+  tags:
+    - syntax
+    - panelCapture
+  command: java -jar /mnt/Bioinfo/Softs/src/cromwell/womtool.jar validate panelCapture.wdl
+  exit_code: 0
+  stdout:
+    contains:
+      - "Success!"
