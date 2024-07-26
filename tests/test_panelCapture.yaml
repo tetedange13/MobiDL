@@ -45,4 +45,4 @@
   command: nohup bash -c "source tests/func_special.sh && run_wdl_MobiDL panelCapture.wdl tests/panelCapture/HG002-chr22_inputs.json tests/Cluster_noDB-test.conf"
   stdout:
     contains:
-      - "workflow finished with status 'Succeede
+      - "workflow finished with status 'Succeeded'"
