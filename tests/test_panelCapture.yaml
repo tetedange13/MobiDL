@@ -46,3 +46,14 @@
   stdout:
     contains:
       - "workflow finished with status 'Succeeded'"
+
+- name: PanelCapture A161161 chr22
+  # Overall runtime : ~ 30 min
+  tags:
+    - wf_level
+    - downsampled
+    - patient
+  command: nohup bash -c "source tests/func_special.sh && run_wdl_MobiDL panelCapture.wdl tests/panelCapture/A161161-chr22_inputs.json tests/Cluster_noDB-test.conf"
+  stdout:
+    contains:
+      - "workflow finished with status 'Succeeded'"
