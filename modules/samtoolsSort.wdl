@@ -11,14 +11,16 @@ task samtoolsSort {
 	Int Memory
 	String OutputDirSampleID = if OutDirSampleID == "" then SampleID else OutDirSampleID
 	command {
+		#Sort:
 		${SamtoolsExe} sort -@ ${Cpu} -l 6 \
 		-o "${OutDir}${OutputDirSampleID}/${WorkflowType}/${SampleID}.sorted.bam" \
 		"${BamFile}"
-		mv "${OutDir}${OutputDirSampleID}/${WorkflowType}/${SampleID}.sorted.bam" \
-		"${OutDir}${OutputDirSampleID}/${WorkflowType}/${SampleID}.bam"
+		#And index BAM:
+		${SamtoolsExe} index "${OutDir}${OutputDirSampleID}/${WorkflowType}/${SampleID}.sorted.bam"
 	}
 	output {
-		File sortedBam = "${OutDir}${OutputDirSampleID}/${WorkflowType}/${SampleID}.bam"
+		File sortedBam = "${OutDir}${OutputDirSampleID}/${WorkflowType}/${SampleID}.sorted.bam"
+		File sortedBamIndex = "${OutDir}${OutputDirSampleID}/${WorkflowType}/${SampleID}.sorted.bam.bai"
 	}
 	runtime {
 		cpu: "${Cpu}"
