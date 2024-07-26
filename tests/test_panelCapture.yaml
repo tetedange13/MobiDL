@@ -33,3 +33,16 @@
     - path: out-test/HG002.hc.summary.csv
       should_exist: true
       md5sum: 8dc70e1085de62c004d28b2e9f93b4d6
+
+- name: PanelCapture HG002 trio son chr22
+  # Overall runtime : ~ 30 min
+  tags:
+    - wf_level
+    - downsampled
+    - corriel
+    - HG002_trio
+    - son
+  command: nohup bash -c "source tests/func_special.sh && run_wdl_MobiDL panelCapture.wdl tests/panelCapture/HG002-chr22_inputs.json tests/Cluster_noDB-test.conf"
+  stdout:
+    contains:
+      - "workflow finished with status 'Succeede

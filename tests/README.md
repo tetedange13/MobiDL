@@ -23,7 +23,7 @@ To run both 'solo' and 'mini' tests in parallel, use their tag:
 ```bash
 # FULL (not down-sampled) 'corriel' test for 'son' from 'HG002_trio' (takes ~ 3.5h):
 pytest \
-        --tag HG002_trio --tag son \
+        --tag HG002_trio --tag son --tag full \
         --keep-workflow-wd \
         --verbose \
         --git-aware \
