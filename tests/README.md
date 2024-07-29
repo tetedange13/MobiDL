@@ -18,12 +18,28 @@ pytest \
 ```
 Due to `--keep-workflow-wd` option, dirs `Name_of_my_test` present at `--basetemp` path (created by `pytest-workflow`) must be be deleted *manually* afterwards
 
-Overall running both tests in serial takes 2h-2h30<br>
-To run both 'solo' and 'mini' tests in parallel, use their tag:
 ```bash
 # FULL (not down-sampled) 'corriel' test for 'son' from 'HG002_trio' (takes ~ 3.5h):
 pytest \
         --tag HG002_trio --tag son --tag full \
+        --keep-workflow-wd \
+        --verbose \
+        --git-aware \
+        --basetemp=/scratch \
+        tests/test_panelCapture.yaml &
+
+# Down-sampled (chr22 only) 'corriel' test for 'son' from 'HG002_trio' (takes ~ XX):
+pytest \
+        --tag HG002_trio --tag son --tag downsampled \
+        --keep-workflow-wd \
+        --verbose \
+        --git-aware \
+        --basetemp=/scratch \
+        tests/test_panelCapture.yaml &
+
+# Down-sampled (chr22 only) 'patient' test (takes ~ XX):
+pytest \
+        --tag patient --tag downsampled \
         --keep-workflow-wd \
         --verbose \
         --git-aware \
