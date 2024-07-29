@@ -54,6 +54,15 @@ pytest \
         --git-aware \
         --basetemp=/scratch \
         tests/test_panelCapture.yaml &
+
+# HG38 full (but small) 'patient' test (takes ~ 15 min):
+pytest \
+        --tag patient --tag full --tag hg38 \
+        --keep-workflow-wd \
+        --verbose \
+        --git-aware \
+        --basetemp=/scratch \
+        tests/test_panelCapture.yaml &
 ```
 
 
