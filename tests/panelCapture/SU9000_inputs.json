@@ -3,7 +3,7 @@
   "panelCapture.outDir": "/scratch/PanelCapture_SU9000/",
   "panelCapture.fastqR1": "/mnt/chu-ngs/RUNS/MINISEQ/240524_MN00265_0671_A000H75NG3/Alignment_1/20240525_144907/Fastq/SU9000_S4_L001_R1_001.fastq.gz",
   "panelCapture.fastqR2": "/mnt/chu-ngs/RUNS/MINISEQ/240524_MN00265_0671_A000H75NG3/Alignment_1/20240525_144907/Fastq/SU9000_S4_L001_R1_001.fastq.gz",
-  "panelCapture.intervalBedFile": "/bioinfo/refData/intervals/bedFiles/NS_157_hg38.bed",
+  "panelCapture.intervalBedFile": "/mnt/chu-ngs/refData/intervals/RefSeqHG19_CDSplus20.bed",
   "panelCapture.suffix1": "_S1_R1_001",
   "panelCapture.suffix2": "_S1_R2_001",
   "panelCapture.suffixIndex": "",
