@@ -45,6 +45,15 @@ pytest \
         --git-aware \
         --basetemp=/scratch \
         tests/test_panelCapture.yaml &
+
+# Full (but small) 'patient' test (takes ~ 15 min):
+pytest \
+        --tag patient --tag full \
+        --keep-workflow-wd \
+        --verbose \
+        --git-aware \
+        --basetemp=/scratch \
+        tests/test_panelCapture.yaml &
 ```
 
 
