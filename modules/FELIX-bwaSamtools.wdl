@@ -55,7 +55,7 @@ task bwaSamtools {
 		${SamtoolsExe} index "${SortedBam}"
 
 		#Run 'flagstats' on it:
-		${SamtoolsExe} flagstats "${SortedBam}" > "${SortedBam}".flagstats
+		${SamtoolsExe} flagstat "${SortedBam}" > "${SortedBam}".flagstats
 	}
 	output {
 		File sortedBam = SortedBam
