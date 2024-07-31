@@ -26,13 +26,13 @@
   files:
     - path: out-test/HG002.summary.csv
       should_exist: true
-      md5sum: 19bae9f7cc8816d52e784c5e2032bdda
+      md5sum: d7a297e0a91ec56a1c8f9b949121f794
     - path: out-test/HG002.dv.summary.csv
       should_exist: true
-      md5sum: e3ef775e97b79188881705d434910010
+      md5sum: 2e2057233bf4fc3fc13b4a71a7bd663f
     - path: out-test/HG002.hc.summary.csv
       should_exist: true
-      md5sum: 8dc70e1085de62c004d28b2e9f93b4d6
+      md5sum: c6a62444e58aebccaeb4b24fa309742b
 
 - name: PanelCapture HG002 trio son chr22
   # Overall runtime : ~ 30 min

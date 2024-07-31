@@ -176,7 +176,7 @@ workflow panelCapture {
 	#}
 	call runFastp.fastp {
 		input:
-		Cpu = cpuHigh,
+		Cpu = 1,
 		Memory = memoryLow,
 		SampleID = sampleID,
 		OutDir = outDir,
