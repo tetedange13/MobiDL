@@ -56,10 +56,13 @@ workflow MetaPanelCapture {
 	meta {
 		author: "Felix VANDERMEEREN"
 		email: "felix.vandermeeren(at)chu-montpellier.fr"
+		version: "0.0.1"
+		date: "2024-07-31"
 	}
 	## Global
     String inRun
 	Array[String] samplesList
+	Array[String] excludedSamplesList = ["Undetermined"]
 	Array[File] intervalBedFileList
 	Array[String] intervalBaitBedList = []
 	String metaOutDir
