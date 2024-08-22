@@ -43,14 +43,6 @@ task bwaMemnosort {
 	String BwaExe = "bwa"
 	String Platform = "ILLUMINA"
 	String RefFasta
-	#File RefFai
-	#RefFai useles for bwa
-	#index files for bwa
-	File? RefAmb
-	File? RefAnn
-	File? RefBwt
-	File? RefPac
-	File? RefSa
 	#runtime attributes
 	Int Cpu
 	Int Memory
@@ -107,11 +99,9 @@ task bwaSamtools {
 	File FastqR2
 	String SamtoolsExe = "samtools"
 	#task specific variables
-	String BwaExe
-	String Platform
-	File RefFasta
-	#index files for bwa
-	#runtime attributes
+	String BwaExe = "bwa"
+	String Platform = "ILLUMINA"
+	String RefFasta
 	Int Cpu
 	Int Memory
 	String SortedBam = "sorted.bam"
