@@ -7,3 +7,13 @@
   stdout:
     contains:
       - "Success!"
+
+- name: Cromwell syntax of FELIX-bwaSamtools
+  tags:
+    - syntax
+    - FELIXbwa
+  command: java -jar /mnt/Bioinfo/Softs/src/cromwell/womtool.jar validate FELIX-bwaSamtools.wdl
+  exit_code: 0
+  stdout:
+    contains:
+      - "Success!"
