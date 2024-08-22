@@ -3,7 +3,7 @@ workflow DEBUGbwaSamtools {
 	File FastqR2
 	String RefFasta
 
-	call bwaSamtools {
+	call bwaMemnosort {
 		input:
 			FastqR1 = FastqR1,
 			FastqR2 = FastqR2,
@@ -14,7 +14,7 @@ workflow DEBUGbwaSamtools {
 }
 
 
-task bwaSamtools {
+task bwaMemnosort {
 	#global variables
 	String SampleID = "FELIX"
 	String OutDirSampleID = ""
@@ -22,7 +22,6 @@ task bwaSamtools {
 	String WorkflowType = ""
 	File FastqR1
 	File FastqR2
-	String SamtoolsExe = "samtools"
 	#task specific variables
 	String BwaExe = "bwa"
 	String Platform = "ILLUMINA"
@@ -39,27 +38,15 @@ task bwaSamtools {
 	Int Cpu
 	Int Memory
 
-	String SortedBam = "${OutDir}/${SampleID}.bam"
-	String SortedBamIndex = "${OutDir}/${SampleID}.bam.bai"
-
 	command {
 		${BwaExe} mem -M -t ${Cpu} \
 		-R "@RG\tID:${SampleID}\tSM:${SampleID}\tPL:${Platform}" \
 		${RefFasta} \
 		${FastqR1} \
-		${FastqR2} \
-		| ${SamtoolsExe} sort -@ ${Cpu} -l 1 \
-		-o "${SortedBam}"
-
-		#Index BAM:
-		${SamtoolsExe} index "${SortedBam}"
-
-		#Run 'flagstats' on it:
-		${SamtoolsExe} flagstat "${SortedBam}" > "${SortedBam}".flagstats
+		${FastqR2}
 	}
 	output {
-		File sortedBam = SortedBam
-		File sortedBamIndex = SortedBamIndex
+		File outputFile = stdout()
 	}
 	runtime {
 		cpu: "${Cpu}"
