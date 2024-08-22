@@ -11,15 +11,16 @@ workflow DEBUGbwaSamtools {
 			Cpu = 16,
 			Memory = 2400
 	}
+	call samtoolsSort {
+		input:
+			BamFile = bwaMemnosort.outputFile
+	}
 }
 
 
 task bwaMemnosort {
 	#global variables
 	String SampleID = "FELIX"
-	String OutDirSampleID = ""
- 	String OutDir = "./"
-	String WorkflowType = ""
 	File FastqR1
 	File FastqR2
 	#task specific variables
@@ -47,6 +48,34 @@ task bwaMemnosort {
 	}
 	output {
 		File outputFile = stdout()
+	}
+	runtime {
+		cpu: "${Cpu}"
+		requested_memory_mb_per_core: "${Memory}"
+	}
+}
+
+
+task samtoolsSort {
+	#global variables
+	String SamtoolsExe = "samtools"
+	String BamFile
+	#runtime attributes
+	Int Cpu
+	Int Memory
+	String SortedBam = "sorted.bam"
+	String SortedBamIndex = "sorted.bam.bai"
+	command {
+		#Sort:
+		${SamtoolsExe} sort -@ ${Cpu} -l 6 \
+		-o "${SortedBam}" \
+		"${BamFile}"
+		#And index BAM:
+		${SamtoolsExe} index "${SortedBam}"
+	}
+	output {
+		File sortedBam = SortedBam
+		File sortedBamIndex = SortedBamIndex
 	}
 	runtime {
 		cpu: "${Cpu}"
