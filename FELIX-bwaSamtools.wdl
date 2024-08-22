@@ -10,14 +10,14 @@ workflow DEBUGbwaSamtools {
 				FastqR1 = FastqR1,
 				FastqR2 = FastqR2,
 				RefFasta = RefFasta,
-				Cpu = 16,
-				Memory = 2400
+				Cpu = 8,
+				Memory = 1536
 		}
 		call samtoolsSort {
 			input:
 				BamFile = bwaMemnosort.outputFile,
-				Cpu = 16,
-				Memory = 2400
+				Cpu = 8,
+				Memory = 1536
 		}
 	}
 
@@ -27,8 +27,8 @@ workflow DEBUGbwaSamtools {
 				FastqR1 = FastqR1,
 				FastqR2 = FastqR2,
 				RefFasta = RefFasta,
-				Cpu = 16,
-				Memory = 2400
+				Cpu = 8,
+				Memory = 1536
 		}
 	}
 }
@@ -83,7 +83,7 @@ task samtoolsSort {
 	String SortedBamIndex = "sorted.bam.bai"
 	command {
 		#Sort:
-		${SamtoolsExe} sort -@ ${Cpu} -l 6 \
+		${SamtoolsExe} sort -@ ${Cpu} -l 1 \
 		-o "${SortedBam}" \
 		"${BamFile}"
 		#And index BAM:
@@ -122,7 +122,7 @@ task bwaSamtools {
 		${RefFasta} \
 		${FastqR1} \
 		${FastqR2} \
-		| ${SamtoolsExe} sort -@ ${Cpu} -l 6 \
+		| ${SamtoolsExe} sort -@ ${Cpu} -l 1 \
 		-o "${SortedBam}"
 
 		${SamtoolsExe} index "${SortedBam}"
