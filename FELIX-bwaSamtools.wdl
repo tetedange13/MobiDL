@@ -11,8 +11,8 @@ workflow DEBUGbwaSamtools {
 			Cpu = 16,
 			Memory = 2400
 	}
-
 }
+
 
 task bwaSamtools {
 	#global variables
