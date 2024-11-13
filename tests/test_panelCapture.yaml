@@ -80,3 +80,14 @@
   stdout:
     contains:
       - "workflow finished with status 'Succeeded'"
+
+- name: Simulated on cluster scratch
+  # Overall runtime : ~ 1.5h
+  tags:
+    - wf_level
+    - full
+    - simulated
+  command: nohup bash -c "source tests/func_special.sh && run_wdl_MobiDL panelCapture.wdl tests/panelCapture/simulated_inputs.json tests/Cluster_noDB-test.conf"
+  stdout:
+    contains:
+      - "workflow finished with status 'Succeeded'"
