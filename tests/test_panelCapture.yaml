@@ -21,7 +21,7 @@
     - HG002_trio
     - son
     - special
-  command: nohup bash tests/panelCapture/run_happy_FULL.sh /scratch/PanelCapture_HG002_trio_son_on_cluster_scratch HG002
+  command: nohup bash tests/panelCapture/run_happy_FULL.sh /scratch/PanelCapture_HG002_trio_son_on_cluster_scratch HG002 /mnt/chu-ngs/refData/intervals/RefSeqHG19_CDSplus20.bed
   exit_code: 0
   files:
     - path: out-test/HG002.summary.csv

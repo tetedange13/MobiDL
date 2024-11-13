@@ -51,17 +51,14 @@ export -f run_wdl_MobiDL
 happy_exomeTwist() {
 	# Function to run hap.py on a corriel VCF sequenced on exomeTwist
 	# Chromosomes are expected to have 'chr' prefix (such as for 'Exome.wdl' pipeline)
-	if [ $# -lt 2 ] ; then
+	if [ $# -lt 3 ] ; then
 		echo "Problem"
 		return 1
 	fi
 	local SAMPLE=$1  # Used to find paths of bench files (eg: 'HG002')
 	local to_tested_VCF=$2  # Path to VCF produced by pipeline
+	local tgt_BED=$3
 
-	local tgt_BED=/mnt/chu-ngs/refData/intervals/RefSeqHG19_CDSplus20.bed
-	if [ $# -eq 3 ] ; then
-		tgt_BED=$3
-	fi
 	local ref_fa=/mnt/chu-ngs/refData/genome/hg19/hg19.fa
 	local prfx_truth=/mnt/chu-ngs/refData/VCFs_ref_for_validation
 	local out_happy=out-test && mkdir --parents "$out_happy"
