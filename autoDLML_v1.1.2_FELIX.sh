@@ -292,9 +292,10 @@ modifyJsonAndLaunch() {
 		# info "gatkEnv loaded"
 		# exit 0;
 		"${CWW}" -e "${CROMWELL}" -o "${CROMWELL_OPTIONS}" -c "${CROMWELL_CONF}" -w "${WDL_PATH}${WDL}.wdl" -i "${JSON}" >> "${TMP_OUTPUT_DIR2}Logs/${SAMPLE}_${WDL}.log"
+		# info " >>> DRY-RUN <<<"
 		if [ $? -eq 0 ];then
 			# conda deactivate  # No need to deactivate ? If so, use this cmd instead ? : source /mnt/Bioinfo/Softs/miniconda/bin/deactivate
-			echo ">> FINI CORECTEMENT"
+			info ">> FINI CORECTEMENT"
 			workflowPostTreatment "${WDL}"
 		else
 			# # GATK_LEFT_ALIGN_INDEL_ERROR=$(grep 'the range cannot contain negative indices' "${TMP_OUTPUT_DIR2}Logs/${SAMPLE}_${WDL}.log")
@@ -346,6 +347,7 @@ workflowPostTreatment() {
 
 
 setvariables() {
+	BASE_DIR_CLUSTER=""  # Otherwise 'unbound var' error bellow ???
 	ACHAB=captainAchab
 	ACHAB_TODO_DIR_SED=${ACHAB_TODO_DIR////\\/}
 	GENE_FILE_SED=${GENE_FILE////\\/}
@@ -379,7 +381,7 @@ modifyAchabJson() {
 	chmod -R 777 "${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${SAMPLE}/"
 	setjsonvariables "${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${SAMPLE}/captainAchab_inputs.json"
 	# move achab input folder in todo folder for autoachab
-	cp -R "${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${SAMPLE}/" "${BASE_DIR}${ACHAB_TODO_DIR}"
+	cp -R "${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${SAMPLE}/" "${BASE_DIR_CLUSTER}${ACHAB_TODO_DIR}"
 	ACHAB_DIR=CaptainAchab
 }
 
@@ -411,8 +413,9 @@ prepareAchab() {
 	# do it only once
 	# we keep on filling the example conf file for merge_multisample
 	# if [ -z "${FAMILY_FILE_CREATED}" ];then
-	set +u  # Required, otherwise: ERROR "FAMILY_FILE_CREATED: unbound variable"
-	if [ "${FAMILY_FILE_CREATED}" -eq 0 ];then
+	# set +u  # Required, otherwise: ERROR "FAMILY_FILE_CREATED: unbound variable"
+	# if [ "${FAMILY_FILE_CREATED}" -eq 0 ];then
+	if [ -n "" ];then  # Disable bellow cond for now
 		if [ -z "${FAMILY_FILE_CONFIG}" ];then
 			# we need to redefine the file path - can happen with MiniSeq when the fastqs are imported manually (thks LRM2)
 			FAMILY_FILE_CONFIG="${NAS_CHU}WDL/Families/${RUN}/Example_file_config.txt"
@@ -455,9 +458,9 @@ prepareAchab() {
 	debug "Genes file: ${GENE_FILE}"
 	if [ -n "${DISEASE_FILE}" ] && [ -n "${GENE_FILE}" ] && [ -n "${JSON_SUFFIX}" ]; then
 		# cp disease file in achab input dir
-		cp "${DISEASE_ACHAB_DIR}${DISEASE_FILE}" "${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${SAMPLE}/disease.txt"
+		cp --verbose "${DISEASE_ACHAB_DIR}${DISEASE_FILE}" "${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${SAMPLE}/disease.txt"
 		# cp json file in achab input dir and modify it
-		cp "${MOBIDL_JSON_DIR}captainAchab_inputs_${JSON_SUFFIX}.json" "${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${SAMPLE}/captainAchab_inputs.json"
+		cp --verbose "${MOBIDL_JSON_DIR}captainAchab_inputs_${JSON_SUFFIX}.json" "${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${SAMPLE}/captainAchab_inputs.json"
 		setvariables
 		modifyAchabJson
 		# If CF then copy original VCF from CF_panel bed file to Achab ready dir for future analysis
@@ -469,6 +472,22 @@ prepareAchab() {
 			setjsonvariables "${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${SAMPLE}/captainAchab_inputs.json"
 			ACHAB_DIR="${ACHAB_DIR_OLD}"
 		fi
+
+		# Run Achab:
+		info "Launching ACHAB:"
+		info "${CWW} -e ${CROMWELL} -o ${CROMWELL_OPTIONS} -c ${CROMWELL_CONF} -w ${WDL_PATH}captainAchab.wdl -i ${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${SAMPLE}/captainAchab_inputs.json"
+		info "Achab log for ${SAMPLE} in ${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${SAMPLE}/captainAchab.log"
+		# Activate Exome_prod env for Achab to work:
+		# WARN: Not exact same conditions as 'Monster' ?
+		set +u ; source "${CONDA_ACTIVATE}" "/mnt/Bioinfo/Softs/src/conda/envs/Exome_prod" ; set -u
+		# MEMO: Log Achab to '/scratch/FINAL_output'
+		nohup ${CWW} \
+			-e ${CROMWELL} \
+			-o ${CROMWELL_OPTIONS} \
+			-c ${CROMWELL_CONF} \
+			-w /home/felix/MobiDL/captainAchab.wdl \
+			-i "${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${SAMPLE}/captainAchab_inputs.json" \
+				> "${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${SAMPLE}/captainAchab.log"
 	fi
 }
 
@@ -606,7 +625,8 @@ do
 							if [ ! -d "${OUTPUT_PATH}${RUN}" ];then
 								mkdir -p "${OUTPUT_PATH}${RUN}"
 							fi
-							if [ ! -d "${NAS_CHU}WDL/Families/${RUN}" ];then
+							# if [ ! -d "${NAS_CHU}WDL/Families/${RUN}" ];then
+							if [ -n "" ];then  # Disable bellow cond for now
 								# create folder meant to put family files for afterwards merging
 								mkdir -p "${NAS_CHU}WDL/Families/${RUN}"
 								chmod -R 777 "${NAS_CHU}WDL/Families/${RUN}"
@@ -658,7 +678,7 @@ do
 							declare -A SAMPLES
 							# WARN: '${RUN_PATH}${RUN}/FastQs' will work only for NEXTSEQ run
 							#       -> Remove '/FastQs' for prod
-							# >>>> WARN <<<<< 'FastQs2' THERE
+							# >>>> WARN <<<<< PUT 'FastQs2' BELLOW if TESTING on '721028_NB501631_0007_AAAOOOPPPY'
 							FASTQS=$(find "${RUN_PATH}${RUN}/FastQs" -mindepth 1 -maxdepth 5 -type f -name *.fastq.gz | grep -v 'Undetermined' | sort)
 							for FASTQ in ${FASTQS[@]};do
 								FILENAME=$(basename "${FASTQ}" ".fastq.gz")
