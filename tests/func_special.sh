@@ -79,3 +79,32 @@ happy_exomeTwist() {
 		"$prfx_truth"/"$SAMPLE"_GRCh37_1_22_v4.2.1_benchmark.chr.vcf.gz \
 		"$to_tested_VCF"
 }
+
+
+happy_simulated() {
+	# Function to run hap.py on VCF used to simulated reads with NEAT (showing UMAI variants)
+	# Chromosomes are expected to have 'chr' prefix (such as for 'Exome.wdl' pipeline)
+	if [ $# -lt 3 ] ; then
+		echo "Problem"
+		return 1
+	fi
+	local SAMPLE=$1  # Used to find paths of bench files (eg: 'HG002')
+	local to_tested_VCF=$2  # Path to VCF produced by pipeline
+	local tgt_BED=$3
+
+	local ref_fa=/mnt/chu-ngs/refData/genome/hg19/hg19.fa
+	local prfx_truth=/mnt/chu-ngs/Labos/UMAI/LancementAnalyseCluster/TESTS/sandy/
+	local out_happy=out-test && mkdir --parents "$out_happy"
+
+	source /etc/profile.d/conda.sh && conda activate /home/olivier/.conda/envs/hap.py
+
+	# Run hap.py:
+	# Provide 'tgtBED' for '--false-positives' too, cuz have NO 'noinconsistent.bed' for simulation ?
+	srun --partition="test" hap.py \
+		--false-positives "$tgt_BED" \
+		--target-regions "$tgt_BED" \
+		--reference "$ref_fa" \
+		--report-prefix "$out_happy"/"$(basename "$to_tested_VCF" .vcf)" \
+		"$prfx_truth"/"$SAMPLE".vcf \
+		"$to_tested_VCF"
+}
