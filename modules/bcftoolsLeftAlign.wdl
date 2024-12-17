@@ -1,5 +1,5 @@
 task bcftoolsLeftAlign {
- File BcftoolsExe  File FastaGenome
+ String BcftoolsExe  File FastaGenome
  File SplittedVcf
  String WorkflowType
  String OutDir

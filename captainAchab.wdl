@@ -18,15 +18,15 @@ workflow captainAchab {
 	Int cpu
 	Int memory
 	## Language Path
-  String perlPath
-  String pythonPath
+  String perlPath = "perl"
+  String pythonPath = " "  # Not used in 'mpa' task
   ## Exe
   File achabExe
-  File mpaExe
+  String mpaExe = "mpa"
   String phenolyzerExe
   File tableAnnovarExe
-  File bcftoolsExe
-  File gatkExe
+  String bcftoolsExe = "bcftools"
+  String gatkExe = "gatk"
   ## Global
   String workflowType
   String sampleID
@@ -47,7 +47,6 @@ workflow captainAchab {
   Boolean withPhenolyzer
   String diseaseFile
   ## From Achab
-  Boolean newHope
   String genesOfInterest
   String customVCF
   String fatherSample
@@ -152,6 +151,7 @@ workflow captainAchab {
   call runAnnovarForMpa.annovarForMpa {
     input:
 		Memory = memory,
+    CpuHigh = cpu,
     WorkflowType = workflowType, 
     CustomXref = customXref,
     SortedVcf = gatkSortVcf.sortedVcf,

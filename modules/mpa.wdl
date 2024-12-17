@@ -1,5 +1,5 @@
 task mpa {
-	File MpaExe
+	String MpaExe
 	File OutAnnotation
 	String WorkflowType
 	String SampleID
@@ -10,7 +10,7 @@ task mpa {
 	Int Cpu
 	Int Memory
 	command {
-		"${PythonPath}" "${MpaExe}" \
+		"${MpaExe}" \
 		-i "${OutAnnotation}" -l INFO \
 		-o "${OutDir}${SampleID}/${WorkflowType}/${SampleID}.${Genome}_multianno_MPA.vcf"
 	}

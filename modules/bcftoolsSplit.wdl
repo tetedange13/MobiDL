@@ -2,7 +2,7 @@ task bcftoolsSplit {
  String WorkflowType
  Boolean IsPrepared
  File InputVcf
- File BcftoolsExe
+ String BcftoolsExe
  String SampleID
  String OutDir
  #runtime attributes
