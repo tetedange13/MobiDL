@@ -293,9 +293,9 @@ modifyJsonAndLaunch() {
 		# exit 0;
 		"${CWW}" -e "${CROMWELL}" -o "${CROMWELL_OPTIONS}" -c "${CROMWELL_CONF}" -w "${WDL_PATH}${WDL}.wdl" -i "${JSON}" >> "${TMP_OUTPUT_DIR2}Logs/${SAMPLE}_${WDL}.log"
 		if [ $? -eq 0 ];then
-			conda deactivate
+			# conda deactivate  # No need to deactivate ? If so, use this cmd instead ? : source /mnt/Bioinfo/Softs/miniconda/bin/deactivate
 			echo ">> FINI CORECTEMENT"
-			# workflowPostTreatment "${WDL}"  # Do NOT run postTreatment -> outDir left in '$TMP_OUTPUT_DIR' (= '/scratch/felix/tmp_output')
+			workflowPostTreatment "${WDL}"
 		else
 			# # GATK_LEFT_ALIGN_INDEL_ERROR=$(grep 'the range cannot contain negative indices' "${TMP_OUTPUT_DIR2}Logs/${SAMPLE}_${WDL}.log")
 			# # david 20210215 replace with below because of cromwell change does not report errors in main logs anymore
@@ -329,18 +329,19 @@ workflowPostTreatment() {
 	info "Moving MobiDL sample ${SAMPLE} to ${OUTPUT_PATH}${RUN}/MobiDL/"
 	# ${RSYNC} -avq --no-g --chmod=ugo=rwX "${TMP_OUTPUT_DIR2}${SAMPLE}" "${OUTPUT_PATH}${RUN}/MobiDL/"
 	/usr/bin/srun -N1 -c1 -pprod -JautoDL_rsync_sample "${RSYNC}" -aqz --no-g --chmod=ugo=rwX "${TMP_OUTPUT_DIR2}${SAMPLE}" "${OUTPUT_PATH}${RUN}/MobiDL/"
-	if [ $? -eq 0 ];then
-		rm -r "${TMP_OUTPUT_DIR2}${SAMPLE}"
-	else
-		error "Error while syncing ${1} for ${SAMPLE} in run ${OUTPUT_PATH}${RUN}"
-	fi
-	# remove cromwell data
-	WORKFLOW_ID=$(grep "${CROMWELL_ID_EXP}" "${TMP_OUTPUT_DIR2}Logs/${SAMPLE}_${1}.log" | rev | cut -d ' ' -f 1 | rev)
-	if [[ -n "${WORKFLOW_ID}" ]]; then
-		# test récupérer le path courant
-		rm -r "./cromwell-executions/${WDL}/${WORKFLOW_ID}"
-		info "removed cromwell data for ${WORKFLOW_ID}"
-	fi
+	# MEMO: DO NOT RUN BELLOW STEPS -> want to keep log and cwl_exec dir:
+	# if [ $? -eq 0 ];then
+	# 	rm -r "${TMP_OUTPUT_DIR2}${SAMPLE}"
+	# else
+	# 	error "Error while syncing ${1} for ${SAMPLE} in run ${OUTPUT_PATH}${RUN}"
+	# fi
+	# # remove cromwell data
+	# WORKFLOW_ID=$(grep "${CROMWELL_ID_EXP}" "${TMP_OUTPUT_DIR2}Logs/${SAMPLE}_${1}.log" | rev | cut -d ' ' -f 1 | rev)
+	# if [[ -n "${WORKFLOW_ID}" ]]; then
+	# 	# test récupérer le path courant
+	# 	rm -r "./cromwell-executions/${WDL}/${WORKFLOW_ID}"
+	# 	info "removed cromwell data for ${WORKFLOW_ID}"
+	# fi
 }
 
 
@@ -410,6 +411,7 @@ prepareAchab() {
 	# do it only once
 	# we keep on filling the example conf file for merge_multisample
 	# if [ -z "${FAMILY_FILE_CREATED}" ];then
+	set +u  # Required, otherwise: ERROR "FAMILY_FILE_CREATED: unbound variable"
 	if [ "${FAMILY_FILE_CREATED}" -eq 0 ];then
 		if [ -z "${FAMILY_FILE_CONFIG}" ];then
 			# we need to redefine the file path - can happen with MiniSeq when the fastqs are imported manually (thks LRM2)
@@ -656,6 +658,7 @@ do
 							declare -A SAMPLES
 							# WARN: '${RUN_PATH}${RUN}/FastQs' will work only for NEXTSEQ run
 							#       -> Remove '/FastQs' for prod
+							# >>>> WARN <<<<< 'FastQs2' THERE
 							FASTQS=$(find "${RUN_PATH}${RUN}/FastQs" -mindepth 1 -maxdepth 5 -type f -name *.fastq.gz | grep -v 'Undetermined' | sort)
 							for FASTQ in ${FASTQS[@]};do
 								FILENAME=$(basename "${FASTQ}" ".fastq.gz")
