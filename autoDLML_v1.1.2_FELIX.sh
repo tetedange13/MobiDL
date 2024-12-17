@@ -485,7 +485,7 @@ prepareAchab() {
 			-e ${CROMWELL} \
 			-o ${CROMWELL_OPTIONS} \
 			-c ${CROMWELL_CONF} \
-			-w /home/felix/MobiDL/captainAchab.wdl \
+			-w ${WDL_PATH}captainAchab.wdl \
 			-i "${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${SAMPLE}/captainAchab_inputs.json" \
 				> "${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${SAMPLE}/captainAchab.log"
 	fi
