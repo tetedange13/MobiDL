@@ -443,9 +443,9 @@ prepareAchab() {
 	if ([ "${MANIFEST}" = "GenerateFastQWorkflow" ] || [ "${MANIFEST}" = "GenerateFASTQ" ]) && [ "${JSON_SUFFIX}" == "CFScreening" ]; then
 		# https://www.biostars.org/p/69124/
 		# bedtools intersect -a myfile.vcf.gz -b myref.bed -header > output.vcf
-		source "${CONDA_ACTIVATE}" "${BEDTOOLS_ENV}"
+		set +u ; source "${CONDA_ACTIVATE}" "${BEDTOOLS_ENV}" ; set -u
 		/usr/bin/srun -N1 -c1 -pprod -JautoDL_bedtools_CF "${BEDTOOLS}" intersect -a "${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${WDL}/${SAMPLE}.vcf.gz" -b "${ROI_DIR}CF_screening_v2.bed" -header > "${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${SAMPLE}/${SAMPLE}.vcf"
-		conda deactivate
+		# conda deactivate  # No need to deactivate ? If so, use this cmd instead ? : source /mnt/Bioinfo/Softs/miniconda/bin/deactivate
 		# source ${CONDA_DEACTIVATE}
 	fi
 	if [ ! -f "${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${SAMPLE}/${SAMPLE}.vcf" ];then
@@ -481,6 +481,7 @@ prepareAchab() {
 		# WARN: Not exact same conditions as 'Monster' ?
 		set +u ; source "${CONDA_ACTIVATE}" "/mnt/Bioinfo/Softs/src/conda/envs/Exome_prod" ; set -u
 		# MEMO: Log Achab to '/scratch/FINAL_output'
+		# info " >>> DRY-RUN <<<"
 		nohup ${CWW} \
 			-e ${CROMWELL} \
 			-o ${CROMWELL_OPTIONS} \
@@ -827,10 +828,10 @@ do
 									NUMBER_OF_SAMPLE=$(ls -l ${OUTPUT_PATH}${RUN}/MobiDL/MobiCNVtsvs/${LIBRARY}/*.tsv | wc -l)
 									if [ ${NUMBER_OF_SAMPLE} -gt 2 ];then
 										info "Launching MobiCNV on run ${RUN}, library ${LIBRARY}"
-										source "${CONDA_ACTIVATE}" "${MOBICNV_ENV}"
+										set +u ; source "${CONDA_ACTIVATE}" "${MOBICNV_ENV}" ; set -u
 										/usr/bin/srun -N1 -c1 -pprod -JautoDL_mobicnv "${PYTHON}" "${MOBICNV}" -i "${OUTPUT_PATH}${RUN}/MobiDL/MobiCNVtsvs/${LIBRARY}/" -t tsv -o "${OUTPUT_PATH}${RUN}/MobiDL/${RUN}_${LIBRARY}_MobiCNV.xlsx"
 										debug "/usr/bin/srun -N1 -c1 -pprod -JautoDL_mobicnv ${PYTHON} ${MOBICNV} -i ${OUTPUT_PATH}${RUN}/MobiDL/MobiCNVtsvs/${LIBRARY}/ -t tsv  -o ${OUTPUT_PATH}${RUN}/MobiDL/${RUN}_${LIBRARY}_MobiCNV.xlsx"
-										conda deactivate
+										# conda deactivate  # No need to deactivate ? If so, use this cmd instead ? : source /mnt/Bioinfo/Softs/miniconda/bin/deactivate
 										# here prepare and launch gatk_cnv
 										# sed a gatk_cnv.yaml located in ${AUTODL_DIR} file with proper paths, loads the conda env and launches snakemake
 										# removed 20220420 as does not work as expected
@@ -843,10 +844,10 @@ do
 								done
 							elif [ "${WDL}" != "amplicon" ];then
 								info "Launching MobiCNV on run ${RUN}"
-								source "${CONDA_ACTIVATE}" "${MOBICNV_ENV}"
+								set +u ; source "${CONDA_ACTIVATE}" "${MOBICNV_ENV}" ; set -u
 								/usr/bin/srun -N1 -c1 -pprod -JautoDL_mobicnv "${PYTHON}" "${MOBICNV}" -i "${OUTPUT_PATH}${RUN}/MobiDL/MobiCNVtsvs/" -t tsv -o "${OUTPUT_PATH}${RUN}/MobiDL/${RUN}_MobiCNV.xlsx"
 								debug "/usr/bin/srun -N1 -c1 -pprod -JautoDL_mobicnv ${PYTHON} ${MOBICNV} -i ${OUTPUT_PATH}${RUN}/MobiDL/MobiCNVtsvs/ -t tsv  -o ${OUTPUT_PATH}${RUN}/MobiDL/${RUN}_MobiCNV.xlsx"
-								conda deactivate
+								# conda deactivate  # No need to deactivate ? If so, use this cmd instead ? : source /mnt/Bioinfo/Softs/miniconda/bin/deactivate
 								# here prepare and launch gatk_cnv
 								# sed a gatk_cnv.yaml located in ${AUTODL_DIR} file with proper paths, loads the conda env and launches snakemake
 								# removed 20220420 as does not work as expected
@@ -872,11 +873,11 @@ do
 								# fi
 							fi
 							info "Launching MultiQC on run ${RUN}"
-							source "${CONDA_ACTIVATE}" "${MULTIQC_ENV}"
+							set +u ; source "${CONDA_ACTIVATE}" "${MULTIQC_ENV}" ; set -u
 							/usr/bin/srun -N1 -c1 -pprod -JautoDL_multiqc "${MULTIQC}" "${OUTPUT_PATH}${RUN}/MobiDL/" -n "${RUN}_multiqc.html" -o "${OUTPUT_PATH}${RUN}/MobiDL/"
 							debug "/usr/bin/srun -N1 -c1 -pprod -JautoDL_multiqc ${MULTIQC} ${OUTPUT_PATH}${RUN}/MobiDL/ -n ${RUN}_multiqc.html -o ${OUTPUT_PATH}${RUN}/MobiDL/"
 							/usr/bin/srun -N1 -c1 -pprod -JautoDL_perl_multiqc "${PERL}" -pi.bak -e 's/NaN/null/g' "${OUTPUT_PATH}${RUN}/MobiDL/${RUN}_multiqc_data/multiqc_data.json"
-							conda deactivate
+							# conda deactivate  # No need to deactivate ? If so, use this cmd instead ? : source /mnt/Bioinfo/Softs/miniconda/bin/deactivate
 							# may not be needed anymore with NFS share TEST ME
 							chmod -R 777 "${OUTPUT_PATH}${RUN}/MobiDL/"
 							sed -i -e "s/${RUN}=1/${RUN}=2/" "${RUNS_FILE}"
