@@ -22,7 +22,7 @@ workflow captainAchab {
   String pythonPath = " "  # Not used in 'mpa' task
   ## Exe
   File achabExe
-  String mpaExe = "mpa"
+  String mpaExe = "/bioinfo/conda_envs/mpaEnv/bin/mpa" # Have to use MPA v1.3.0 with 'merged.vcf' 
   String phenolyzerExe
   File tableAnnovarExe
   String bcftoolsExe = "bcftools"

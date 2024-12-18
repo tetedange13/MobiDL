@@ -11,7 +11,7 @@ task phenolyzer {
 	Int Memory
 	command <<<
 		cd ${PhenolyzerExe}
-		${PerlPath} disease_annotation.pl ${DiseaseFile} -f -p -ph -logistic -out ../..${OutDir}${SampleID}/${WorkflowType}/disease/${SampleID}
+		${PerlPath} disease_annotation.pl ${DiseaseFile} -f -p -ph -logistic -out ${OutDir}${SampleID}/${WorkflowType}/disease/${SampleID}
 	>>>
 	output {
 		String? outPhenolyzer = "${OutDir}${SampleID}/${WorkflowType}/disease/${SampleID}.predicted_gene_scores"
