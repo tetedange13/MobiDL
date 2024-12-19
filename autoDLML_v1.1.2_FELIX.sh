@@ -292,11 +292,13 @@ modifyJsonAndLaunch() {
 		# info "gatkEnv loaded"
 		# exit 0;
 		"${CWW}" -e "${CROMWELL}" -o "${CROMWELL_OPTIONS}" -c "${CROMWELL_CONF}" -w "${WDL_PATH}${WDL}.wdl" -i "${JSON}" >> "${TMP_OUTPUT_DIR2}Logs/${SAMPLE}_${WDL}.log"
-		# info " >>> DRY-RUN <<<"
+		# info " >>> DRY-RUN by sending CWL commands to 'cmds.txt' <<<"
+		# echo "nohup ${CWW} -e ${CROMWELL} -o ${CROMWELL_OPTIONS} -c ${CROMWELL_CONF} -w ${WDL_PATH}${WDL}.wdl -i ${JSON} > ${TMP_OUTPUT_DIR2}Logs/${SAMPLE}_${WDL}.log" >> cmds_panelCapture.txt
 		if [ $? -eq 0 ];then
 			# conda deactivate  # No need to deactivate ? If so, use this cmd instead ? : source /mnt/Bioinfo/Softs/miniconda/bin/deactivate
 			info ">> FINI CORECTEMENT"
-			workflowPostTreatment "${WDL}"
+			# set +e  # UNCOMMENT ME WHEN "DRY-RUN"
+			workflowPostTreatment "${WDL}"  # COMMENT ME when "DRY-RUN"
 		else
 			# # GATK_LEFT_ALIGN_INDEL_ERROR=$(grep 'the range cannot contain negative indices' "${TMP_OUTPUT_DIR2}Logs/${SAMPLE}_${WDL}.log")
 			# # david 20210215 replace with below because of cromwell change does not report errors in main logs anymore
@@ -481,7 +483,8 @@ prepareAchab() {
 		# WARN: Not exact same conditions as 'Monster' ?
 		set +u ; source "${CONDA_ACTIVATE}" "/mnt/Bioinfo/Softs/src/conda/envs/Exome_prod" ; set -u
 		# MEMO: Log Achab to '/scratch/FINAL_output'
-		# info " >>> DRY-RUN <<<"
+		# info " >>> DRY-RUN by sending CWL commands to 'cmds.txt' <<<"
+		# echo "nohup ${CWW} -e ${CROMWELL} -o ${CROMWELL_OPTIONS} -c ${CROMWELL_CONF} -w ${WDL_PATH}captainAchab.wdl -i ${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${SAMPLE}/captainAchab_inputs.json > ${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${SAMPLE}/captainAchab.log" >> cmds_captainAchab.txt
 		nohup ${CWW} \
 			-e ${CROMWELL} \
 			-o ${CROMWELL_OPTIONS} \
@@ -674,7 +677,6 @@ do
 							debug "/usr/bin/srun -N1 -c1 -pprod -JautoDL_interopi ${ILLUMINAINTEROP}index-summary ${RUN_PATH}${RUN}  --csv=1 > ${OUTPUT_PATH}${RUN}/MobiDL/interop/index-summary"
 							/usr/bin/srun -N1 -c1 -pprod -JautoDL_interopi "${ILLUMINAINTEROP}index-summary" "${RUN_PATH}${RUN}"  --csv=1 > "${OUTPUT_PATH}${RUN}/MobiDL/interop/index-summary"
 							# now we have to identifiy samples in fastqdir (identify fastqdir,which may change depending on the Illumina workflow) then sed on json model, then launch wdl workflow
-							# set -x
 							set +u  # For BASH_REMATCH to work ? (otherwise 'unbound var error at line #661')
 							declare -A SAMPLES
 							# WARN: '${RUN_PATH}${RUN}/FastQs' will work only for NEXTSEQ run
@@ -723,6 +725,8 @@ do
 									# 	BED=$(grep "${SAMPLE}," "${SAMPLESHEET_PATH}" | cut -d "," -f 3 | cut -d "#" -f 1)
 									# 	WDL=$(cat ${SAMPLESHEET_PATH} | sed $'s/\r//' | grep "${SAMPLE}," | cut -d "," -f 3 | cut -d "#" -f 2)
 									# fi
+									# WARN:	All samples found with FASTQ must be declared in SampleSheet ?
+									#       Otherwise error
 									BED=$(grep "${SAMPLE}," "${SAMPLESHEET_PATH}" | cut -d "," -f ${DESCRIPTION_FIELD} | cut -d "#" -f 1)
 									WDL=$(cat ${SAMPLESHEET_PATH} | sed $'s/\r//' | grep "${SAMPLE}," | cut -d "," -f ${DESCRIPTION_FIELD} | cut -d "#" -f 2)
 									SAMPLE_ROI_TYPE=$(grep "${SAMPLE}," "${SAMPLESHEET_PATH}" | cut -d "," -f 11 | cut -d "#" -f 1 | cut -d "." -f 1)
@@ -885,7 +889,7 @@ do
 							info "RUN ${RUN} treated" 
 							touch "${OUTPUT_PATH}${RUN}/MobiDL/${WDL}Complete.txt"
 							echo "[`date +'%Y-%m-%d %H:%M:%S'`] [INFO] - autoDL version : ${VERSION} - MobiDL ${WDL} complete for run ${RUN}" > "${OUTPUT_PATH}${RUN}/MobiDL/${WDL}Complete.txt"
-							rm -r "${TMP_OUTPUT_DIR2}"
+							# rm -r "${TMP_OUTPUT_DIR2}"  # Disable for "DRY-RUN"
 						else
 							info "Nothing done for run ${RUN_PATH}${RUN}"
 							if [ -z "${RUN_ARRAY[${RUN}]}" ];then
