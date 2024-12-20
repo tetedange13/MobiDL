@@ -63,6 +63,24 @@ pytest \
         --git-aware \
         --basetemp=/scratch \
         tests/test_panelCapture.yaml &
+
+# NEAT-simulated exome data, with UMAI variants:
+pytest \
+        --tag simulated --tag exome \
+        --keep-workflow-wd \
+        --verbose \
+        --git-aware \
+        --basetemp=/scratch \
+        tests/test_panelCapture.yaml &
+
+# NEAT-simulated panel data (MAI_19_genes), with UMAI variants:
+pytest \
+        --tag simulated --tag panel \
+        --keep-workflow-wd \
+        --verbose \
+        --git-aware \
+        --basetemp=/scratch \
+        tests/test_panelCapture.yaml &
 ```
 
 

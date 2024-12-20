@@ -87,7 +87,42 @@
     - wf_level
     - full
     - simulated
+    - exome
   command: nohup bash -c "source tests/func_special.sh && run_wdl_MobiDL panelCapture.wdl tests/panelCapture/simulated_inputs.json tests/Cluster_noDB-test.conf"
   stdout:
     contains:
       - "workflow finished with status 'Succeeded'"
+
+- name: PanelCapture simulated PANEL on cluster scratch
+  # Overall runtime : ~ 30 min
+  tags:
+    - wf_level
+    - full
+    - simulated
+    - panel
+  command: nohup bash -c "source tests/func_special.sh && run_wdl_MobiDL panelCapture.wdl tests/panelCapture/simulated-panel_inputs.json tests/Cluster_noDB-test.conf"
+  stdout:
+    contains:
+      - "workflow finished with status 'Succeeded'"
+
+- name: Happy simulated PANEL on cluster scratch
+  # Hap.py ran against VCF of UMAI variants
+  # -> Rather to evaluate '(false-)negatives' side
+  tags:
+    - wf_level
+    - full
+    - simulated
+    - panel
+    - special
+  command: nohup bash tests/panelCapture/run_happy_simulated.sh /scratch/PanelCapture_simulated_PANEL_on_cluster_scratch neat-UMAI-20241217-panelS /bioinfo/refData/intervals/bedFiles/old/MAI_19_261223-JSI_chr.bed
+  exit_code: 0
+  files:
+    - path: out-test/neat-UMAI-20241217-panelS.summary.csv
+      should_exist: true
+      md5sum: 734af5f6b3ac2f4680ddf1b1bd577279
+    - path: out-test/neat-UMAI-20241217-panelS.dv.summary.csv
+      should_exist: true
+      md5sum: 17ca420c4ca6b23c540dd8e462ecaa14
+    - path: out-test/neat-UMAI-20241217-panelS.hc.summary.csv
+      should_exist: true
+      md5sum: 734af5f6b3ac2f4680ddf1b1bd577279
