@@ -1,8 +1,8 @@
   {
-  "panelCapture.sampleID": "neat-UMAI-20241217-panelS",
+  "panelCapture.sampleID": "neat-UMAI-20240717",
   "panelCapture.outDir": "/scratch/PanelCapture_simulated_PANEL_on_cluster_scratch/",
-  "panelCapture.fastqR1": "/mnt/chu-ngs/NEXTSEQ/runs/721028_NB501631_0007_AAAOOOPPPY/FastQs/neat-UMAI-20241217-panelS_R1_001.fastq.gz",
-  "panelCapture.fastqR2": "/mnt/chu-ngs/NEXTSEQ/runs/721028_NB501631_0007_AAAOOOPPPY/FastQs/neat-UMAI-20241217-panelS_R2_001.fastq.gz",
+  "panelCapture.fastqR1": "/mnt/chu-ngs/NEXTSEQ/runs/721028_NB501631_0007_AAAOOOPPPY/FastQs/neat-UMAI-20240717-panelS_R1_001.fastq.gz",
+  "panelCapture.fastqR2": "/mnt/chu-ngs/NEXTSEQ/runs/721028_NB501631_0007_AAAOOOPPPY/FastQs/neat-UMAI-20240717-panelS_R2_001.fastq.gz",
   "panelCapture.intervalBedFile": "/bioinfo/refData/intervals/bedFiles/old/MAI_19_261223-JSI_chr.bed",
   "panelCapture.suffix1": "_S1_R1_001",
   "panelCapture.suffix2": "_S1_R2_001",

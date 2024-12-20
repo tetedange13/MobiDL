@@ -1,6 +1,6 @@
   {
-  "panelCapture.sampleID": "simulated",
-  "panelCapture.outDir": "/scratch/Simulated_on_cluster_scratch/",
+  "panelCapture.sampleID": "neat-UMAI-20240717",
+  "panelCapture.outDir": "/scratch/PanelCapture_simulated_on_cluster_scratch/",
   "panelCapture.fastqR1": "/mnt/chu-ngs/NEXTSEQ/runs/721028_NB501631_0007_AAAOOOPPPY/FastQs/neat-UMAI-20240717-exomeTwist_R1_001.fastq.gz",
   "panelCapture.fastqR2": "/mnt/chu-ngs/NEXTSEQ/runs/721028_NB501631_0007_AAAOOOPPPY/FastQs/neat-UMAI-20240717-exomeTwist_R2_001.fastq.gz",
   "panelCapture.intervalBedFile": "/mnt/chu-ngs/refData/intervals/RefSeqHG19_CDSplus20.bed",
@@ -59,7 +59,7 @@
   "panelCapture.subdivisionMode": "BALANCING_WITHOUT_INTERVAL_SUBDIVISION",
   "panelCapture.minCovBamQual": "30",
   "panelCapture.swMode": "FASTEST_AVAILABLE",
-  "panelCapture.mergeVCFMobiDL": "/home/felix/MobiDL/anacoreUtilsMergeVCFCallersMobiDL.py",
+  "panelCapture.mergeVCFMobiDL": "anacoreUtilsMergeVCFCallersMobiDL.py",
   "panelCapture.singularityExe": "/mnt/Bioinfo/Softs/src/conda/envs/NF-core/bin/singularity",
   "panelCapture.refData": "/mnt/chu-ngs,/bioinfo",
   "panelCapture.data": "/mnt/data140",
