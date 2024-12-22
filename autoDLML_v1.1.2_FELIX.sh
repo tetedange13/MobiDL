@@ -520,7 +520,7 @@ do
 	# assignVariables "${RUN_PATH}"
 	OUTPUT_PATH=${RUN_PATH}
 	# RUNS=$(ls -l --time-style="long-iso" ${RUN_PATH} | egrep '^d' | awk '{print $8}' |  egrep '^[0-9]{6}_')
-	RUNS=721028_NB501631_0007_AAAOOOPPPY
+	RUNS=$(cut -d"=" -f1 ${RUNS_FILE})
 	for RUN in ${RUNS}
 	do
 		###### do not look at runs set to 2 in the runs.txt file
