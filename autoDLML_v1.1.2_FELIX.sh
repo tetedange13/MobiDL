@@ -284,9 +284,9 @@ modifyJsonAndLaunch() {
 		touch "${TMP_OUTPUT_DIR2}Logs/${SAMPLE}_${WDL}.log"
 		info "MobiDL ${WDL} log for ${SAMPLE} in ${TMP_OUTPUT_DIR2}Logs/${SAMPLE}_${WDL}.log"
 		# actual launch and copy in the end
-		set +u   # Required otherwise bellow 'activate' fail (cuz within Bash script)
+		set +xu   # Required otherwise bellow 'activate' fail (cuz within Bash script)
 		source "${CONDA_ACTIVATE}" "${GATK_ENV}" || { error "Failed to activate Conda environment"; exit 1; }
-		set -u
+		set -xu
 		# conda env is loaded but cromwell acts as if it were not?
 		# info "$(which gatk)"
 		# info "gatkEnv loaded"
@@ -390,6 +390,11 @@ modifyAchabJson() {
 
 prepareAchab() {
 	# function to prepare dirs for autoachab execution
+	# If panelCapture not run -> exit without error
+	if [ ! -d "${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/" ];then
+		echo "WARN: No MobiDL dir -> skip achabPreparation"
+		return 0
+	fi
 	if [ ! -d "${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${SAMPLE}/" ];then
 		mkdir "${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${SAMPLE}/"
 	fi
@@ -445,7 +450,7 @@ prepareAchab() {
 	if ([ "${MANIFEST}" = "GenerateFastQWorkflow" ] || [ "${MANIFEST}" = "GenerateFASTQ" ]) && [ "${JSON_SUFFIX}" == "CFScreening" ]; then
 		# https://www.biostars.org/p/69124/
 		# bedtools intersect -a myfile.vcf.gz -b myref.bed -header > output.vcf
-		set +u ; source "${CONDA_ACTIVATE}" "${BEDTOOLS_ENV}" ; set -u
+		set +xu ; source "${CONDA_ACTIVATE}" "${BEDTOOLS_ENV}" ; set -xu
 		/usr/bin/srun -N1 -c1 -pprod -JautoDL_bedtools_CF "${BEDTOOLS}" intersect -a "${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${WDL}/${SAMPLE}.vcf.gz" -b "${ROI_DIR}CF_screening_v2.bed" -header > "${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${SAMPLE}/${SAMPLE}.vcf"
 		# conda deactivate  # No need to deactivate ? If so, use this cmd instead ? : source /mnt/Bioinfo/Softs/miniconda/bin/deactivate
 		# source ${CONDA_DEACTIVATE}
@@ -475,23 +480,25 @@ prepareAchab() {
 			ACHAB_DIR="${ACHAB_DIR_OLD}"
 		fi
 
-		# Run Achab:
-		info "Launching ACHAB:"
-		info "${CWW} -e ${CROMWELL} -o ${CROMWELL_OPTIONS} -c ${CROMWELL_CONF} -w ${WDL_PATH}captainAchab.wdl -i ${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${SAMPLE}/captainAchab_inputs.json"
-		info "Achab log for ${SAMPLE} in ${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${SAMPLE}/captainAchab.log"
-		# Activate Exome_prod env for Achab to work:
-		# WARN: Not exact same conditions as 'Monster' ?
-		set +u ; source "${CONDA_ACTIVATE}" "/mnt/Bioinfo/Softs/src/conda/envs/Exome_prod" ; set -u
-		# MEMO: Log Achab to '/scratch/FINAL_output'
-		# info " >>> DRY-RUN by sending CWL commands to 'cmds.txt' <<<"
-		# echo "nohup ${CWW} -e ${CROMWELL} -o ${CROMWELL_OPTIONS} -c ${CROMWELL_CONF} -w ${WDL_PATH}captainAchab.wdl -i ${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${SAMPLE}/captainAchab_inputs.json > ${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${SAMPLE}/captainAchab.log" >> cmds_captainAchab.txt
-		nohup ${CWW} \
-			-e ${CROMWELL} \
-			-o ${CROMWELL_OPTIONS} \
-			-c ${CROMWELL_CONF} \
-			-w ${WDL_PATH}captainAchab.wdl \
-			-i "${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${SAMPLE}/captainAchab_inputs.json" \
-				> "${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${SAMPLE}/captainAchab.log"
+		if [ -n "" ] ; then
+			# Run Achab:
+			info "Launching ACHAB:"
+			info "${CWW} -e ${CROMWELL} -o ${CROMWELL_OPTIONS} -c ${CROMWELL_CONF} -w ${WDL_PATH}captainAchab.wdl -i ${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${SAMPLE}/captainAchab_inputs.json"
+			info "Achab log for ${SAMPLE} in ${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${SAMPLE}/captainAchab.log"
+			# Activate Exome_prod env for Achab to work:
+			# WARN: Not exact same conditions as 'Monster' ?
+			set +xu ; source "${CONDA_ACTIVATE}" "/mnt/Bioinfo/Softs/src/conda/envs/Exome_prod" ; set -xu
+			# MEMO: Log Achab to '/scratch/FINAL_output'
+			# info " >>> DRY-RUN by sending CWL commands to 'cmds.txt' <<<"
+			# echo "nohup ${CWW} -e ${CROMWELL} -o ${CROMWELL_OPTIONS} -c ${CROMWELL_CONF} -w ${WDL_PATH}captainAchab.wdl -i ${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${SAMPLE}/captainAchab_inputs.json > ${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${SAMPLE}/captainAchab.log" >> cmds_captainAchab.txt
+			nohup ${CWW} \
+				-e ${CROMWELL} \
+				-o ${CROMWELL_OPTIONS} \
+				-c ${CROMWELL_CONF} \
+				-w ${WDL_PATH}captainAchab.wdl \
+				-i "${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${SAMPLE}/captainAchab_inputs.json" \
+					> "${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${SAMPLE}/captainAchab.log"
+		fi
 	fi
 }
 
@@ -510,6 +517,7 @@ prepareGatkCnv() {
 
 ###############		Now we'll have a look at the content of the directories ###############################
 set -euo pipefail
+#set -x  # DEBUG
 
 # http://moinne.com/blog/ronald/bash/list-directory-names-in-bash-shell
 # --time-style is used here to ensure awk $8 will return the right thing (dir name)
@@ -562,6 +570,7 @@ do
 					unset MANIFEST
 					unset BED
 					unset WDL
+					# set +ue  # Required with 'single library' mode (otherwise bellow grep fail + other 'unbound var')
 					MANIFEST=$(grep -F -e "`cat ${ROI_FILE} | cut -d '=' -f 1`" ${SAMPLESHEET_PATH} | cut -d ',' -f 2)
 					if [ -n "${MANIFEST}" ];then
 						BED=$(grep "${MANIFEST%?}" "${ROI_FILE}" | cut -d '=' -f 2 | cut -d ',' -f 1)
@@ -745,13 +754,15 @@ do
 									# 		info "NEW_OUTPUT_PATH: ${NEW_OUTPUT_PATH} - MANIFEST: ${MANIFEST} - BED: ${BED} - FASTQ_WORKFLOWS_FILE: ${FASTQ_WORKFLOWS_FILE}"
 									# 	fi
 									# fi
-									# put ROI in a hash table with ROI as keys then loop on the hash and launch mobiCNV and multiqc
-									ROI_TYPES["${SAMPLE_ROI_TYPE}"]=1
-									if [ ! -d "${OUTPUT_PATH}${RUN}/MobiDL/MobiCNVtsvs/${SAMPLE_ROI_TYPE}/" ];then
-										mkdir -p "${OUTPUT_PATH}${RUN}/MobiDL/MobiCNVtsvs/${SAMPLE_ROI_TYPE}/"
-									fi
-									if [ ! -d "${OUTPUT_PATH}${RUN}/MobiDL/MobiCNVvcfs/${SAMPLE_ROI_TYPE}/" ];then
-										mkdir -p "${OUTPUT_PATH}${RUN}/MobiDL/MobiCNVvcfs/${SAMPLE_ROI_TYPE}/"
+									if [ -n "$SAMPLE_ROI_TYPE" ] ; then
+										# put ROI in a hash table with ROI as keys then loop on the hash and launch mobiCNV and multiqc
+										ROI_TYPES["${SAMPLE_ROI_TYPE}"]=1
+										if [ ! -d "${OUTPUT_PATH}${RUN}/MobiDL/MobiCNVtsvs/${SAMPLE_ROI_TYPE}/" ];then
+											mkdir -p "${OUTPUT_PATH}${RUN}/MobiDL/MobiCNVtsvs/${SAMPLE_ROI_TYPE}/"
+										fi
+										if [ ! -d "${OUTPUT_PATH}${RUN}/MobiDL/MobiCNVvcfs/${SAMPLE_ROI_TYPE}/" ];then
+											mkdir -p "${OUTPUT_PATH}${RUN}/MobiDL/MobiCNVvcfs/${SAMPLE_ROI_TYPE}/"
+										fi
 									fi
 								fi
 								modifyJsonAndLaunch
@@ -769,6 +780,7 @@ do
 								# 	ln -s "${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${WDL}/${SAMPLE}.crumble.cram.crai" "${OUTPUT_PATH}${RUN}/MobiDL/alignment_files/${SAMPLE}.crumble.cram.crai"
 								# fi
 								# LED specific block
+								# set +u  # Required in 'single library' mode (otherwise $SAMPLE_ROI_TYPE unbound ???)
 								LED_FILE="${OUTPUT_PATH}${RUN}/MobiDL/MobiCNVvcfs/${SAMPLE_ROI_TYPE}/${SAMPLE}.txt"
 								DISEASE=''
 								TEAM=''
@@ -814,8 +826,10 @@ do
 								echo "visibility:1" >> "${LED_FILE}"
 								echo "experiment_type:${EXPERIMENT}" >> "${LED_FILE}"
 								# end led specific block
-								/usr/bin/srun -N1 -c1 -pprod -JautoDL_cp_vcf cp "${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${WDL}/${SAMPLE}.vcf" "${OUTPUT_PATH}${RUN}/MobiDL/MobiCNVvcfs/${SAMPLE_ROI_TYPE}"
-								/usr/bin/srun -N1 -c1 -pprod -JautoDL_cp_cov cp "${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${WDL}/coverage/${SAMPLE}_coverage.tsv" "${OUTPUT_PATH}${RUN}/MobiDL/MobiCNVtsvs/${SAMPLE_ROI_TYPE}"
+								if [ -d "${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/" ] ; then
+									/usr/bin/srun -N1 -c1 -pprod -JautoDL_cp_vcf cp "${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${WDL}/${SAMPLE}.vcf" "${OUTPUT_PATH}${RUN}/MobiDL/MobiCNVvcfs/${SAMPLE_ROI_TYPE}"
+									/usr/bin/srun -N1 -c1 -pprod -JautoDL_cp_cov cp "${OUTPUT_PATH}${RUN}/MobiDL/${SAMPLE}/${WDL}/coverage/${SAMPLE}_coverage.tsv" "${OUTPUT_PATH}${RUN}/MobiDL/MobiCNVtsvs/${SAMPLE_ROI_TYPE}"
+								fi
 								debug "SAMPLE(SUFFIXES):${SAMPLE}(${SAMPLES[${SAMPLE}]})"
 							done
 							unset SAMPLES
@@ -832,7 +846,7 @@ do
 									NUMBER_OF_SAMPLE=$(ls -l ${OUTPUT_PATH}${RUN}/MobiDL/MobiCNVtsvs/${LIBRARY}/*.tsv | wc -l)
 									if [ ${NUMBER_OF_SAMPLE} -gt 2 ];then
 										info "Launching MobiCNV on run ${RUN}, library ${LIBRARY}"
-										set +u ; source "${CONDA_ACTIVATE}" "${MOBICNV_ENV}" ; set -u
+										set +xu ; source "${CONDA_ACTIVATE}" "${MOBICNV_ENV}" ; set -xu
 										/usr/bin/srun -N1 -c1 -pprod -JautoDL_mobicnv "${PYTHON}" "${MOBICNV}" -i "${OUTPUT_PATH}${RUN}/MobiDL/MobiCNVtsvs/${LIBRARY}/" -t tsv -o "${OUTPUT_PATH}${RUN}/MobiDL/${RUN}_${LIBRARY}_MobiCNV.xlsx"
 										debug "/usr/bin/srun -N1 -c1 -pprod -JautoDL_mobicnv ${PYTHON} ${MOBICNV} -i ${OUTPUT_PATH}${RUN}/MobiDL/MobiCNVtsvs/${LIBRARY}/ -t tsv  -o ${OUTPUT_PATH}${RUN}/MobiDL/${RUN}_${LIBRARY}_MobiCNV.xlsx"
 										# conda deactivate  # No need to deactivate ? If so, use this cmd instead ? : source /mnt/Bioinfo/Softs/miniconda/bin/deactivate
@@ -848,7 +862,7 @@ do
 								done
 							elif [ "${WDL}" != "amplicon" ];then
 								info "Launching MobiCNV on run ${RUN}"
-								set +u ; source "${CONDA_ACTIVATE}" "${MOBICNV_ENV}" ; set -u
+								set +xu ; source "${CONDA_ACTIVATE}" "${MOBICNV_ENV}" ; set -xu
 								/usr/bin/srun -N1 -c1 -pprod -JautoDL_mobicnv "${PYTHON}" "${MOBICNV}" -i "${OUTPUT_PATH}${RUN}/MobiDL/MobiCNVtsvs/" -t tsv -o "${OUTPUT_PATH}${RUN}/MobiDL/${RUN}_MobiCNV.xlsx"
 								debug "/usr/bin/srun -N1 -c1 -pprod -JautoDL_mobicnv ${PYTHON} ${MOBICNV} -i ${OUTPUT_PATH}${RUN}/MobiDL/MobiCNVtsvs/ -t tsv  -o ${OUTPUT_PATH}${RUN}/MobiDL/${RUN}_MobiCNV.xlsx"
 								# conda deactivate  # No need to deactivate ? If so, use this cmd instead ? : source /mnt/Bioinfo/Softs/miniconda/bin/deactivate
@@ -877,7 +891,7 @@ do
 								# fi
 							fi
 							info "Launching MultiQC on run ${RUN}"
-							set +u ; source "${CONDA_ACTIVATE}" "${MULTIQC_ENV}" ; set -u
+							set +xu ; source "${CONDA_ACTIVATE}" "${MULTIQC_ENV}" ; set -xu
 							/usr/bin/srun -N1 -c1 -pprod -JautoDL_multiqc "${MULTIQC}" "${OUTPUT_PATH}${RUN}/MobiDL/" -n "${RUN}_multiqc.html" -o "${OUTPUT_PATH}${RUN}/MobiDL/"
 							debug "/usr/bin/srun -N1 -c1 -pprod -JautoDL_multiqc ${MULTIQC} ${OUTPUT_PATH}${RUN}/MobiDL/ -n ${RUN}_multiqc.html -o ${OUTPUT_PATH}${RUN}/MobiDL/"
 							/usr/bin/srun -N1 -c1 -pprod -JautoDL_perl_multiqc "${PERL}" -pi.bak -e 's/NaN/null/g' "${OUTPUT_PATH}${RUN}/MobiDL/${RUN}_multiqc_data/multiqc_data.json"
