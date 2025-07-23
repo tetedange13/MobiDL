@@ -9,13 +9,14 @@ set -euo pipefail
 # Common variables:
 prfx_tested=$1
 SAMPLE=$2
+usedBed=$3
 
 # Get func that run hap.py on corriel sequenced with exomeTwist:
 source tests/func_special.sh
 
 set -x  # Activation of env is too verbose set 'DEBUG' from here
 
-if [ -z $(find "$prfx_tested"/"$SAMPLE" -type f -name "${SAMPLE}.vcf") ] ; then
+if [ -z $(find "$prfx_tested"/ -type f -name "${SAMPLE}.vcf") ] ; then
 	echo "ERROR: No VCF found with name '${SAMPLE}.vcf' in path '$prfx_tested/$SAMPLE'"
 	exit 1
 fi
@@ -26,20 +27,20 @@ fi
 # 'merged' VCF:
 happy_exomeTwist \
     "$SAMPLE" \
-    $(find "$prfx_tested"/"$SAMPLE" -type f -name "${SAMPLE}.vcf") \
-    /mnt/chu-ngs/refData/intervals/RefSeqHG19_CDSplus20.bed &
+    $(find "$prfx_tested"/ -type f -name "${SAMPLE}.vcf") \
+    "$usedBed" &
 
 # 'DeepVariant' VCF:
 happy_exomeTwist \
     "$SAMPLE" \
-    $(find "$prfx_tested"/"$SAMPLE" -type f -name "${SAMPLE}.dv.vcf") \
-    /mnt/chu-ngs/refData/intervals/RefSeqHG19_CDSplus20.bed &
+    $(find "$prfx_tested"/ -type f -name "${SAMPLE}.dv.vcf") \
+    "$usedBed" &
 
 # 'HaplotypeCaller' VCF:
 happy_exomeTwist \
     "$SAMPLE" \
-    $(find "$prfx_tested"/"$SAMPLE" -type f -name "${SAMPLE}.hc.vcf") \
-    /mnt/chu-ngs/refData/intervals/RefSeqHG19_CDSplus20.bed &
+    $(find "$prfx_tested"/ -type f -name "${SAMPLE}.hc.vcf") \
+    "$usedBed" &
 
 
 # Wait for 'srun' jobs ran in background to finish:
