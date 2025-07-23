@@ -18,7 +18,7 @@ workflow normAndMerge {
     input {
 		## VcSuffix
 		String dvSuffix = ".deepvariant.norm"
-		String hcSuffix = ".hc.norm"
+		String hcSuffix = ".haplotypecaller.norm"
         ## envs
         String condaBin = "/mnt/Bioinfo/Softs/miniconda/bin/"
         String bcftoolsEnv = "/bioinfo/conda_envs/bcftoolsEnv"
@@ -53,7 +53,7 @@ workflow normAndMerge {
         String outDir = inDir
         String outDvDir = outDir + "/variant_calling/deepvariant/"
         String outHcDir = outDir + "/variant_calling/haplotypecaller/"
-        String outMergeDir = outDir + "/merge/"
+        String outMergeDir = outDir + "/variant_calling/merge/"
     }
     #Normalize DeepVariant VCF (+ index)
 	call bcftoolsNorm as bcftoolsNormDv {
@@ -213,6 +213,7 @@ task bcftoolsNorm {
 		source ~{CondaBin}activate ~{BcftoolsEnv}
 		~{BcftoolsExe} norm \
 			-f ~{RefFasta} -m -both \
+			-m -both \
 			-O v -o "~{OutDir}~{SampleID}/~{WorkflowType}/~{SampleID}~{VcSuffix}.~{VcfExtension}" \
 			~{SortedVcf}
 		if [ ~{Version} = true ];then
