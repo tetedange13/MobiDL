@@ -12,7 +12,7 @@ workflow normAndMerge {
     meta {
         author: "Felix VANDERMEEREN"
         email: "felix.vandermeeren(at)chu-montpellier.fr"
-        version: "0.0.7"
+        version: "0.2.1"
         date: "2025-07-15"
     }
 
@@ -68,7 +68,7 @@ workflow normAndMerge {
 			Cpu = cpuLow,
 			Memory = memoryLow,
 			SampleID = sampleID,
-			OutDir = outDvDir,
+			OutDir = "./",
 			WorkflowType = workflowType,
 			BcftoolsExe = bcftoolsExe,
 			VcSuffix = ".deepvariant",
@@ -84,7 +84,7 @@ workflow normAndMerge {
 			SampleID = sampleID,
 			OutDir = outDvDir,
 			WorkflowType = workflowType,
-			VcSuffix = dvSuffix,
+			VcSuffix = ".deepvariant",
 			VcftoolsExe = vcftoolsExe,
 			Version = true,
 			VcfToRefCalled = bcftoolsDecompress.outVcf
@@ -172,7 +172,7 @@ workflow normAndMerge {
 			Cpu = cpuLow,
 			Memory = memoryLow,
 			SampleID = sampleID,
-			OutDir = outMergeDir,
+			OutDir = "./",
 			WorkflowType = workflowType,
 			MergeVCFMobiDL = mergeVCFMobiDL,
 			Vcfs = [bcftoolsNormHc.normVcf, bcftoolsNormDv.normVcf],
@@ -241,7 +241,7 @@ task bcftoolsDecompress {
 		Int Cpu
 		Int Memory
 	}
-	String OutVcf = "./" + WorkflowType + SampleID + VcSuffix + "." + VcfExtension
+	String OutVcf = OutDir + SampleID + WorkflowType + WorkflowType + SampleID + VcSuffix + "." + VcfExtension
 	command <<<
 		set -e  # To make task stop at 1st error
 		source ~{CondaBin}activate ~{BcftoolsEnv}
