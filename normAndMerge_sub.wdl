@@ -2,6 +2,7 @@ version 1.0
 
 
 # import "modules/bcftoolsNorm.wdl" as runBcftoolsNorm  # -> Cannot use, cuz does not use fasta to normalize... (-> NO inDels left alignement)
+import "modules/refcallFiltration.wdl" as runRefCallFiltration
 import "modules/compressIndexVcf.wdl" as runCompressIndexVcf
 import "modules/anacoreUtilsMergeVCFCallers.wdl" as runAnacoreUtilsMergeVCFCallers
 import "modules/gatkUpdateVCFSequenceDictionary.wdl" as runGatkUpdateVCFSequenceDictionary
@@ -11,7 +12,7 @@ workflow normAndMerge {
     meta {
         author: "Felix VANDERMEEREN"
         email: "felix.vandermeeren(at)chu-montpellier.fr"
-        version: "0.0.5"
+        version: "0.0.7"
         date: "2025-07-15"
     }
 
@@ -21,6 +22,7 @@ workflow normAndMerge {
 		String hcSuffix = ".haplotypecaller.norm"
         ## envs
         String condaBin = "/mnt/Bioinfo/Softs/miniconda/bin/"
+        String vcftoolsEnv = "/bioinfo/conda_envs/vcftoolsEnv"
         String bcftoolsEnv = "/bioinfo/conda_envs/bcftoolsEnv"
         String samtoolsEnv = "/bioinfo/conda_envs/samtoolsEnv"
         String anacoreEnv = "/bioinfo/conda_envs/anacoreEnv"
@@ -30,11 +32,12 @@ workflow normAndMerge {
 		Int cpuLow = 1
 		Int memoryLow = 2400
         ## Exe
-		File mergeVCFMobiDL = "/bioinfo/softs/anacore-custom/anacoreUtils/anacoreUtilsMergeVCFCallersMobiDL.py"  # Anacore-Utils custom mergeVCF script
+        String vcftoolsExe = "vcftools"
         String bcftoolsExe = "bcftools"
-        String gatkExe = "gatk"
         String tabixExe = "tabix"
         String bgZipExe = "bgzip"
+		File mergeVCFMobiDL = "/bioinfo/softs/anacore-custom/anacoreUtils/anacoreUtilsMergeVCFCallersMobiDL.py"  # Anacore-Utils custom mergeVCF script
+        String gatkExe = "gatk"
         ## Global
 		String sampleID
         String workflowType = ""
@@ -55,6 +58,37 @@ workflow normAndMerge {
         String outHcDir = outDir + "/variant_calling/haplotypecaller/"
         String outMergeDir = outDir + "/variant_calling/merge/"
     }
+	# DeepVariant VCF produced by Sarek still contains 'refCall' -> remove them
+	# vcftools support only VCF by default -> decompress first
+	call bcftoolsDecompress {
+		input:
+			Queue = defQueue,
+			CondaBin = condaBin,
+			BcftoolsEnv = bcftoolsEnv,
+			Cpu = cpuLow,
+			Memory = memoryLow,
+			SampleID = sampleID,
+			OutDir = outDvDir,
+			WorkflowType = workflowType,
+			BcftoolsExe = bcftoolsExe,
+			VcSuffix = ".deepvariant",
+			SortedVcf = deepVariantVcf
+	}
+	call runRefCallFiltration.refCallFiltration {
+		input:
+			Queue = defQueue,
+			CondaBin = condaBin,
+			VcftoolsEnv = vcftoolsEnv,
+			Cpu = cpuLow,
+			Memory = memoryLow,
+			SampleID = sampleID,
+			OutDir = outDvDir,
+			WorkflowType = workflowType,
+			VcSuffix = dvSuffix,
+			VcftoolsExe = vcftoolsExe,
+			Version = true,
+			VcfToRefCalled = bcftoolsDecompress.outVcf
+	}
     #Normalize DeepVariant VCF (+ index)
 	call bcftoolsNorm as bcftoolsNormDv {
 		input:
@@ -69,7 +103,7 @@ workflow normAndMerge {
 			BcftoolsExe = bcftoolsExe,
 			VcSuffix = dvSuffix,
 			Version = true,
-			SortedVcf = deepVariantVcf,
+			SortedVcf = refCallFiltration.noRefCalledVcf,
             RefFasta = refFasta
 	}
 	call runCompressIndexVcf.compressIndexVcf as compressIndexVcfDv {
@@ -181,6 +215,55 @@ workflow normAndMerge {
     }
 }
 
+task bcftoolsDecompress {
+	meta {
+		author: "Felix VANDERMEEREN"
+		email: "felix.vandermeeren(at)chu-montpellier.fr"
+		version: "0.0.1"
+		date: "2025-07-01"
+	}
+	input {
+		# env variables
+		String CondaBin
+		String BcftoolsEnv
+		# global variables
+		String SampleID
+		String OutDir
+		String WorkflowType
+		String BcftoolsExe
+		Boolean Version = false
+		# task specific variables
+		File SortedVcf
+		String VcSuffix
+		String VcfExtension = "vcf"
+		# runtime attributes
+		String Queue
+		Int Cpu
+		Int Memory
+	}
+	String OutVcf = "./" + WorkflowType + SampleID + VcSuffix + "." + VcfExtension
+	command <<<
+		set -e  # To make task stop at 1st error
+		source ~{CondaBin}activate ~{BcftoolsEnv}
+		~{BcftoolsExe} view \
+			-O v -o "~{OutVcf}" \
+			~{SortedVcf}
+		if [ ~{Version} = true ];then
+			# fill-in tools version file
+			echo "Bcftools: v$(~{BcftoolsExe} --version | grep bcftools | cut -f2 -d ' ')" >> "~{OutDir}~{SampleID}/~{WorkflowType}/~{SampleID}.versions.txt";
+		fi
+		conda deactivate
+	>>>
+	runtime {
+		queue: "~{Queue}"
+		cpu: "~{Cpu}"
+		requested_memory_mb_per_core: "~{Memory}"
+	}
+	output {
+		File outVcf = OutVcf
+	}
+}
+
 task bcftoolsNorm {
 	meta {
 		author: "Felix VANDERMEEREN"
@@ -211,8 +294,8 @@ task bcftoolsNorm {
 	command <<<
 		set -e  # To make task stop at 1st error
 		source ~{CondaBin}activate ~{BcftoolsEnv}
+		#-f ~{RefFasta}  # Not used by MobiDL
 		~{BcftoolsExe} norm \
-			-f ~{RefFasta} -m -both \
 			-m -both \
 			-O v -o "~{OutDir}~{SampleID}/~{WorkflowType}/~{SampleID}~{VcSuffix}.~{VcfExtension}" \
 			~{SortedVcf}
