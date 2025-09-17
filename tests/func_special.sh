@@ -71,6 +71,7 @@ happy_exomeTwist() {
 		> "$out_happy"/"$SAMPLE"_GRCh37_1_22_v4.2.1_benchmark_noinconsistent.chr.bed
 
 	# Run hap.py:
+	# David's params: --bcftools-norm --decompose --leftshift
 	srun --partition="test" hap.py \
 		--false-positives "$out_happy"/"$SAMPLE"_GRCh37_1_22_v4.2.1_benchmark_noinconsistent.chr.bed \
 		--target-regions "$tgt_BED" \
